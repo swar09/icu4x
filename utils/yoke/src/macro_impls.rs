@@ -126,3 +126,12 @@ unsafe impl<'a, T: 'static + for<'b> Yokeable<'b>, const N: usize> Yokeable<'a> 
     type Output = [<T as Yokeable<'a>>::Output; N];
     unsafe_complex_yoke_impl!();
 }
+
+// Safety: since T, E implement Yokeable<'a>, Result<T<'b>, E<'b>> must be covariant on 'b or the
+// Yokeable implementation on T/E would be unsound.
+unsafe impl<'a, T: 'static + for<'b> Yokeable<'b>, E: 'static + for<'b> Yokeable<'b>> Yokeable<'a>
+    for Result<T, E>
+{
+    type Output = Result<<T as Yokeable<'a>>::Output, <E as Yokeable<'a>>::Output>;
+    unsafe_complex_yoke_impl!();
+}
